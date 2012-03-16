@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Pomodoro statistics for Trello</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <h1>Pomodoro statistics for Trello</h1>
+    <div id="loggedout">
+        <a id="connectLink" href="#">Connect To Trello</a>
+    </div>
+
+    <div id="loggedin">
+
+        <div id="header">
+            Logged in as <span id="fullName"></span> 
+            (<a id="disconnect" href="#">Log Out</a>)
+        </div>
+
+        <div id="board-list"></div>
+        <script id="board-list-tmpl" type="text/x-handlebars-template">
+            <h2>Select board:</h2>
+            <table>
+                {{#each boards}}
+                    {{#with this}}
+
+                    <tr>
+                        <td><a data-id="{{id}}" href="{{url}}">{{name}}</a></td>
+                        <td><a target="_blank" href="{{url}}">View on Trello</a></td>
+                    </tr>
+
+                    {{/with}}
+                {{/each}}
+            </table>
+        </script>
+
+        <div id="output"></div>
+
+
+    </div>    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="https://api.trello.com/1/client.js?key=a11d3c76a7791cf02503f4344bd41ed2"></script>
+    <script src="js/handlebars-1.0.0.beta.6.js"></script>
+    <script src="js/TrelloStats.js"></script>
+    <script>
+        TrelloStats.init({ 
+            output: $("#output"), 
+            boardList: $("#board-list"),
+            boardListTmpl: $("#board-list-tmpl")
+        })
+    </script>
+</body>
+</html>
