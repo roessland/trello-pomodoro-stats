@@ -24,57 +24,84 @@
                 <li><a id="disconnect" href="#">Log out</a></li>
             </ul>
 
-                <div class="row">
+            <div class="row">
 
-                    <div class="span5">
-                        <!-- Select which board here -->
-
-                        <div id="board-list">
-                        </div>
-
-                        <script id="board-list-tmpl" type="text/x-handlebars-template">
-
-                            <h2>Select board:</h2>
-
-                            <select id="board-list-select" class="span2">
-                                {{#each boards}}
-                                    {{#with this}}
-                                    <option id="{{id}}">{{name}}</option>
-                                    {{/with}}
-                                {{/each}}
-                            </select>
-
-                        </script>
+                <div class="span5">
+                    <!-- Select which board here -->
+                    <div id="board-list">
                     </div>
-
-                    <div class="span2">
-                        <span class="bigdivider">&raquo;</span>
-                    </div>
-
-                    <div class="span5">
-                        <!-- Select which list on a board here -->
-
-                        <div id="list-list" class="span6">
-                        </div>
-
-                        <script id="list-list-tmpl" type="text/x-handlebars-template">
-
-                            <h2>Select list:</h2>
-
-                            <select id="list-list-select" class="span2">
-                                {{#each lists}}
-                                    {{#with this}}
-                                    <option id="{{id}}">{{name}}</option>
-                                    {{/with}}
-                                {{/each}}
-                            </select>
-
-                        </script>
+                    <script id="board-list-tmpl" type="text/x-handlebars-template">
+                        <h2>Select board:</h2>
+                        <select id="board-list-select" class="wide">
+                            {{#each boards}}
+                                {{#with this}}
+                                <option id="{{id}}">{{name}}</option>
+                                {{/with}}
+                            {{/each}}
+                        </select>
                     </script>
-
                 </div>
 
-            <div id="output"></div> 
+                <div class="span2 bigdivider">
+                    &raquo;
+                </div>
+
+                <div class="span5">
+                    <!-- Select which list on a board here -->
+                    <div id="list-list" class="span5">
+                    </div>
+                    <script id="list-list-tmpl" type="text/x-handlebars-template">
+                        <h2>Select list:</h2>
+                        <select id="list-list-select" class="wide">
+                            {{#each lists}}
+                                {{#with this}}
+                                <option id="{{id}}">{{name}}</option>
+                                {{/with}}
+                            {{/each}}
+                        </select>
+                    </script>
+                </div><!--/.span5-->
+
+            </div><!--/.row-->
+
+            <div id="upload">
+                <div class="alert alert-info"><p><b>The Trello API doesn't support downloading comments yet</b>, but instead you can do this:</p>
+                    <ol>
+                        <li><a target="_blank" class="btn btn-primary btn-mini" id="open-selected-list">click here</a> to
+                        open the selected list</li> 
+                        <li>export it as .json using the
+                        bottom right link</li> 
+                        
+                        <li>Save it to your computer</li>
+                        <li>drag it from your computer to the field below.
+                    </ol>
+                </div>
+
+                <div id="upload-area">Drop the .json file here</div>
+            </div>
+
+            <div class="row stats">
+
+                <div class="loading">
+                    <img src="img/ajax-loader.gif" alt="Loading...">
+                </div>
+
+                <h2></h2>
+                <div id="stats-basic">
+                </div>
+                <script id="board-list-tmpl" type="text/x-handlebars-template">
+                    <h2>Summary</h2>
+                    <select id="board-list-select" class="span2">
+                        {{#each boards}}
+                            {{#with this}}
+                            <option id="{{id}}">{{name}}</option>
+                            {{/with}}
+                        {{/each}}
+                    </select>
+                </script>
+
+            </div>
+
 
         </div><!--/#loggedin-->
 
@@ -86,11 +113,14 @@
     <script src="js/TrelloStats.js"></script>
     <script>
         TrelloStats.init({ 
-            output: $("#output"), 
-            boardList: $("#board-list"),
-            boardListTmpl: $("#board-list-tmpl"),
-            listList: $("#list-list"),
-            listListTmpl: $("#list-list-tmpl"),
+            output: $("#output"),  // Debug
+            boardList: $("#board-list"), // List of boards
+            boardListTmpl: $("#board-list-tmpl"), // Template for list of boards
+            listList: $("#list-list"), // List of lists
+            listListTmpl: $("#list-list-tmpl"), // Template for list of lists
+            upload: $("#upload"), // Div containing upload help and upload field
+            openSelectedList: $("#open-selected-list"), // Click element to open selected list in new window
+           
         })
     </script>
 </body>

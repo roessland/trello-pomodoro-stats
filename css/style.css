@@ -33,8 +33,29 @@ body {
 }
 
 .bigdivider {
-        font-size: 73px;
-        color: #ccc;
-        line-height: 73px;
+    font-size: 73px;
+    color: #ccc;
+    line-height: 73px;
+    text-align: center;
 }
 
+.stats .loading {
+    margin-top:100px;
+    text-align: center;
+    display: none;
+}
+
+
+/* Utility classes */
+.wide { width:100%; }
+select.wide { width:94%; }
+
+#upload { display: none; }
+
+#upload-area {
+    color: #ccc;
+    border: 5px dotted #ccc;
+    text-align: center;
+    padding: 40px;
+    font-size: 40px;
+}

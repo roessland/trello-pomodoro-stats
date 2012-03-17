@@ -3,11 +3,22 @@
  *
  * A pomodoro statistics generator for Trello
  *
- * Author: Andreas Røssland <andreas@roessland.com>
+ * Author:    Andreas Røssland <andreas@roessland.com>
+ *
  * Live demo: http://roessland.com/trello-pomodoro-stats
- * Source
+ *
+ * Source:    https://github.com/andross/trello-pomodoro-stats
+ *
+ */
 
 var TrelloStats = {
+
+    /*
+     * Initalizes config and does stuff
+     *
+     * Connects to Trello API and initalizes events
+     *
+     */
     init: function(config) {
         var self = this;
 
@@ -56,13 +67,13 @@ var TrelloStats = {
                 self.getLists(board_id);
         });
 
-        // Analyzes the selected list
+        // Opens the help-page for importing a list when selected
         $("#list-list").on("change", "#list-list-select", function(e) {
             var selected = $(this).find("option:selected"),
                 list_id = selected.attr("id"),
                 list_name = selected.html();
 
-                // TODO: Get cards for list
+            self.config.upload.show(); 
                 
         });
 
@@ -142,6 +153,24 @@ var TrelloStats = {
                 tmpl = Handlebars.compile(tmpl_source);
             self.config.listList.html( tmpl( {lists: lists} ) );
         });
+    },
+
+    getCards: function(list_id) {
+        var self = this;
+        $(".stats .loading").toggle();
+
+        Trello.get("lists/" + list_id + "/cards", function( cards ) {
+            self.debug(cards[1].id);
+            console.log(cards[1].id);
+        });
+
+                
+    },
+
+    debug: function(card_id) {
+        Trello.get("cards/" + card_id + "/actions/commentCard", function( card ) {
+            console.log(card);
+        })
     },
 
     /*
