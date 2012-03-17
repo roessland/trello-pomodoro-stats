@@ -4,42 +4,81 @@
     <meta charset="utf-8">
     <title>Pomodoro statistics for Trello</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
 
-    <h1>Pomodoro statistics for Trello</h1>
-    <div id="loggedout">
-        <a id="connectLink" href="#">Connect To Trello</a>
-    </div>
+    <div class="main-container container">
 
-    <div id="loggedin">
+        <h1>Pomodoro statistics for Trello</h1>
 
-        <div id="header">
-            Logged in as <span id="fullName"></span> 
-            (<a id="disconnect" href="#">Log Out</a>)
+
+        <div id="loggedout">
+            <a id="connect-link" href="#">Connect To Trello</a>
         </div>
 
-        <div id="board-list"></div>
-        <script id="board-list-tmpl" type="text/x-handlebars-template">
-            <h2>Select board:</h2>
-            <table>
-                {{#each boards}}
-                    {{#with this}}
+        <div id="loggedin">
 
-                    <tr>
-                        <td><a data-id="{{id}}" href="{{url}}">{{name}}</a></td>
-                        <td><a target="_blank" href="{{url}}">View on Trello</a></td>
-                    </tr>
+            <ul class="breadcrumb">
+                <li>Logged in as <span id="user-fullname"></span> <span class="divider">/</span></li>
+                <li><a id="disconnect" href="#">Log out</a></li>
+            </ul>
 
-                    {{/with}}
-                {{/each}}
-            </table>
-        </script>
+                <div class="row">
 
-        <div id="output"></div>
+                    <div class="span5">
+                        <!-- Select which board here -->
 
+                        <div id="board-list">
+                        </div>
 
-    </div>    
+                        <script id="board-list-tmpl" type="text/x-handlebars-template">
+
+                            <h2>Select board:</h2>
+
+                            <select id="board-list-select" class="span2">
+                                {{#each boards}}
+                                    {{#with this}}
+                                    <option id="{{id}}">{{name}}</option>
+                                    {{/with}}
+                                {{/each}}
+                            </select>
+
+                        </script>
+                    </div>
+
+                    <div class="span2">
+                        <span class="bigdivider">&raquo;</span>
+                    </div>
+
+                    <div class="span5">
+                        <!-- Select which list on a board here -->
+
+                        <div id="list-list" class="span6">
+                        </div>
+
+                        <script id="list-list-tmpl" type="text/x-handlebars-template">
+
+                            <h2>Select list:</h2>
+
+                            <select id="list-list-select" class="span2">
+                                {{#each lists}}
+                                    {{#with this}}
+                                    <option id="{{id}}">{{name}}</option>
+                                    {{/with}}
+                                {{/each}}
+                            </select>
+
+                        </script>
+                    </script>
+
+                </div>
+
+            <div id="output"></div> 
+
+        </div><!--/#loggedin-->
+
+    </div><!--/.container-->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="https://api.trello.com/1/client.js?key=a11d3c76a7791cf02503f4344bd41ed2"></script>
@@ -49,7 +88,9 @@
         TrelloStats.init({ 
             output: $("#output"), 
             boardList: $("#board-list"),
-            boardListTmpl: $("#board-list-tmpl")
+            boardListTmpl: $("#board-list-tmpl"),
+            listList: $("#list-list"),
+            listListTmpl: $("#list-list-tmpl"),
         })
     </script>
 </body>

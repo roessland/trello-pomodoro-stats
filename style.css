@@ -28,13 +28,6 @@ body {
 }
 
 
-.main-container {
-    margin-top: 50px;
+​.bigdivider {
+    font-size: 60px;
 }
-
-.bigdivider {
-        font-size: 73px;
-        color: #ccc;
-        line-height: 73px;
-}
-
