@@ -44,9 +44,11 @@ var TrelloStats = {
      *
      */
     events: function() {
-        self = this; 
+        var self = this
+            dropZone = self.config.dropZone;
 
-        // Connects to Trello using the JS API
+        // When connect-element is clicked,
+        // login using Trello API popup
         $("#connect-link").click( function() {
             Trello.authorize({
                 type: "popup",
@@ -54,30 +56,28 @@ var TrelloStats = {
             })
         });
 
-        // Logs out from the Trello API
+        // When clicking disconnect-element,
+        // log out from the Trello API
         $("#disconnect").on("click", self.logout);
 
-        // Gets the lists for the selected board
+        // When a board is selected,
+        // show the help for importing the board
         $("#board-list").on("change", "#board-list-select", function(e) {
             var selected = $(this).find("option:selected"),
                 board_id = selected.attr("id"),
                 board_name = selected.html();
+                board_url = selected.data("url");
 
-                // Get list list for board
-                self.getLists(board_id);
-        });
 
-        // Opens the help-page for importing a list when selected
-        $("#list-list").on("change", "#list-list-select", function(e) {
-            var selected = $(this).find("option:selected"),
-                list_id = selected.attr("id"),
-                list_name = selected.html();
-
+            // Get list list for board
+            self.config.openSelectedList[0].href = board_url + "/profile";
+            self.config.selectedListName.text(board_name);
             self.config.upload.show(); 
-                
         });
 
-    },
+        dropZone[0].addEventListener('dragover', self.handleDragOver, false);
+        dropZone[0].addEventListener('drop', self.handleFileDrop, false);
+        },
 
     /*
      * Updates or hides the logged-in status, by toggling two divs
@@ -129,48 +129,11 @@ var TrelloStats = {
 
         // Get the list of boards this user has, and put it in a select list
         Trello.get("members/me/boards", function( boards ) {
-            var tmpl_source = self.config.boardListTmpl.html();
-                tmpl = Handlebars.compile(tmpl_source);
-            self.config.boardList.html( tmpl( {boards: boards} ) );
+            var tmpl_source = self.config.boardListTmpl.html();  // Get template
+                tmpl = Handlebars.compile(tmpl_source);  // Compile template
+            self.config.boardList.html( tmpl( {boards: boards} ) );  // Render template
         });
 
-    },
-
-    /*
-     * Get the lists for a board, and render it into a select list
-     *
-     */
-    getLists: function(board_id) {
-
-        var self = this;
-        $("<div>")
-            .text("Loading lists...")
-            .appendTo(self.config.listList);
-
-        // Get the list of boards this user has
-        Trello.get("boards/" + board_id + "/lists", function( lists ) {
-            var tmpl_source = self.config.listListTmpl.html();
-                tmpl = Handlebars.compile(tmpl_source);
-            self.config.listList.html( tmpl( {lists: lists} ) );
-        });
-    },
-
-    getCards: function(list_id) {
-        var self = this;
-        $(".stats .loading").toggle();
-
-        Trello.get("lists/" + list_id + "/cards", function( cards ) {
-            self.debug(cards[1].id);
-            console.log(cards[1].id);
-        });
-
-                
-    },
-
-    debug: function(card_id) {
-        Trello.get("cards/" + card_id + "/actions/commentCard", function( card ) {
-            console.log(card);
-        })
     },
 
     /*
@@ -180,7 +143,74 @@ var TrelloStats = {
     logout: function() {
         Trello.deauthorize();
         TrelloStats.updateLoggedIn();
-    }
+    },
 
+    /*
+     * When a file is dropped, parse the event data to get the JSON object for the board
+     * Only the first file is parsed. The rest is ignored.
+     */
+    handleFileDrop: function( evt ) {
+        var self = TrelloStats;
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        var files = evt.dataTransfer.files; // FileList object.
+        var file = files[0];
+        var reader = new FileReader();
+
+        // Create a closure for reading the file data
+        reader.onload = (function (theFile) {
+            return function(e) {
+                // Reads the file data
+                var board = $.parseJSON( e.target.result );
+                console.log("Board: ", board); 
+                self.parseBoard( board );
+                // board.actions.0.data.text;
+            };
+        })( file );
+
+
+        // Read the first dropped file
+        reader.readAsText( file );
+    },
+
+    /* 
+     * Handle drag events
+     *
+     */
+    handleDragOver: function( evt ) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    },
+
+    /*
+     * Parse board object for data
+     *
+     */
+    parseBoard: function( board ) {
+        var self = this,
+            stats = {};
+
+        // Contains all actions that are comments starting with "Pomodoro #"
+        var pomodoros = $.grep( board.actions, function( action ) {
+            return action.type == "commentCard" && 
+                   action.data.text.substr(0, 10) == "Pomodoro #"
+        });
+
+        // Get total amount of pomodoros
+        stats['pomodoroAmount'] = pomodoros.length;
+
+
+        // Pass statistics to template, and render it
+        var tmpl_source = self.config.resultsTmpl.html();  // Get template
+            tmpl = Handlebars.compile(tmpl_source);  // Compile template
+        self.config.results.html( tmpl({
+                stats: stats,
+                board: board
+            })
+        );  // Render template
+
+    }
 };
 

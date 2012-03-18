@@ -47,15 +47,22 @@ body {
 
 
 /* Utility classes */
-.wide { width:100%; }
-select.wide { width:94%; }
+.wide {  }
 
 #upload { display: none; }
 
-#upload-area {
-    color: #ccc;
-    border: 5px dotted #ccc;
+#drop-zone { 
+    width: 99%; 
+    outline: 5px dotted #ccc; 
+    font-size: 30px; 
+    color: #ccc; 
+    padding-top: 20px; 
+    padding-bottom: 20px; 
     text-align: center;
-    padding: 40px;
-    font-size: 40px;
+    margin: auto; 
+    margin-bottom: 30px;
 }
+
+
+
+#selected-list-name { font-weight: bold; }

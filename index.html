@@ -5,6 +5,7 @@
     <title>Pomodoro statistics for Trello</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
 </head>
 <body>
 
@@ -26,82 +27,57 @@
 
             <div class="row">
 
-                <div class="span5">
+                <div class="span12">
                     <!-- Select which board here -->
                     <div id="board-list">
                     </div>
                     <script id="board-list-tmpl" type="text/x-handlebars-template">
                         <h2>Select board:</h2>
                         <select id="board-list-select" class="wide">
+                            <option disabled></option>
                             {{#each boards}}
                                 {{#with this}}
-                                <option id="{{id}}">{{name}}</option>
+                                <option data-url="{{url}}" id="{{id}}">{{name}}</option>
                                 {{/with}}
                             {{/each}}
                         </select>
                     </script>
                 </div>
-
-                <div class="span2 bigdivider">
-                    &raquo;
-                </div>
-
-                <div class="span5">
-                    <!-- Select which list on a board here -->
-                    <div id="list-list" class="span5">
-                    </div>
-                    <script id="list-list-tmpl" type="text/x-handlebars-template">
-                        <h2>Select list:</h2>
-                        <select id="list-list-select" class="wide">
-                            {{#each lists}}
-                                {{#with this}}
-                                <option id="{{id}}">{{name}}</option>
-                                {{/with}}
-                            {{/each}}
-                        </select>
-                    </script>
-                </div><!--/.span5-->
 
             </div><!--/.row-->
 
             <div id="upload">
                 <div class="alert alert-info"><p><b>The Trello API doesn't support downloading comments yet</b>, but instead you can do this:</p>
                     <ol>
-                        <li><a target="_blank" class="btn btn-primary btn-mini" id="open-selected-list">click here</a> to
-                        open the selected list</li> 
-                        <li>export it as .json using the
-                        bottom right link</li> 
-                        
+                        <li><a target="_blank" class="btn btn-primary btn-mini" id="open-selected-list">
+                            Open <span id="selected-list-name">the selected list</span>
+                        </a></li> 
+                        <li>Click <i>Share, Print and Export</i></li>
+                        <li>Click <i>JSON</i></li>
                         <li>Save it to your computer</li>
-                        <li>drag it from your computer to the field below.
+                        <li>Drag it from your computer to the field below</li>
                     </ol>
                 </div>
 
-                <div id="upload-area">Drop the .json file here</div>
-            </div>
-
-            <div class="row stats">
-
-                <div class="loading">
-                    <img src="img/ajax-loader.gif" alt="Loading...">
+                <div class="row">
+                    <div class="span12">
+                        <div id="drop-zone">Drop the .json file here</div>
+                    </div>
                 </div>
-
-                <h2></h2>
-                <div id="stats-basic">
-                </div>
-                <script id="board-list-tmpl" type="text/x-handlebars-template">
-                    <h2>Summary</h2>
-                    <select id="board-list-select" class="span2">
-                        {{#each boards}}
-                            {{#with this}}
-                            <option id="{{id}}">{{name}}</option>
-                            {{/with}}
-                        {{/each}}
-                    </select>
-                </script>
 
             </div>
 
+            <div id="results">
+                
+            </div>
+            <script id="results-tmpl" type="text/x-handlebars-template">
+                <h2>Pomodoro report for <i>{{board.name}}</i></h2>
+                {{#with stats}}
+                <table class="table table-bordered">
+                    <tr><td>Finished pomodoros</td><td>{{pomodoroAmount}}</td></tr>
+                </table>
+                {{/with}}
+            </script>
 
         </div><!--/#loggedin-->
 
@@ -120,8 +96,17 @@
             listListTmpl: $("#list-list-tmpl"), // Template for list of lists
             upload: $("#upload"), // Div containing upload help and upload field
             openSelectedList: $("#open-selected-list"), // Click element to open selected list in new window
-           
-        })
+            selectedListName: $("#selected-list-name"),
+            dropZone: $("#drop-zone"),
+            results: $("#results"),
+            resultsTmpl: $("#results-tmpl")
+        });
+
     </script>
+
+<script>
+
+</script>
+
 </body>
 </html>
