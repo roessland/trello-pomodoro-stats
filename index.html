@@ -72,11 +72,25 @@
             </div>
             <script id="results-tmpl" type="text/x-handlebars-template">
                 <h2>Pomodoro report for <i>{{board.name}}</i></h2>
+
+                <!-- Label names -->
+                <table cellpadding="5">
+                    <tr>
+                        <td width="1%" style="background-color: red";>Red</td>
+                        <td width="1%" style="background-color: red";>Red</td>
+                        <td width="1%" style="background-color: red";>Red</td>
+                        <td width="1%" style="background-color: red";>Red</td>
+                        <td width="1%" style="background-color: red";>Red</td>
+                        <td width="1%" style="background-color: red";>Red</td>
+                </table>
+
+                <!-- Basic stats -->
                 {{#with stats}}
                 <table class="table table-bordered">
                     <tr><td>Finished pomodoros</td><td>{{pomodoroAmount}}</td></tr>
                 </table>
                 {{/with}}
+
             </script>
 
         </div><!--/#loggedin-->

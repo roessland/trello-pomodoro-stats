@@ -201,7 +201,6 @@ var TrelloStats = {
         // Get total amount of pomodoros
         stats['pomodoroAmount'] = pomodoros.length;
 
-
         // Pass statistics to template, and render it
         var tmpl_source = self.config.resultsTmpl.html();  // Get template
             tmpl = Handlebars.compile(tmpl_source);  // Compile template
