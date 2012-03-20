@@ -70,3 +70,4 @@ body {
 .labels { width: 100%; }
 .stats-weekdays thead { text-align: center; }
 .stats-weekdays tbody td { text-align: right; }
+.chart { text-align: center; }

@@ -243,34 +243,35 @@ var TrelloStats = {
 
         console.log("Parsed board: ", board);
 
-        // Get and compile template
-        var tmpl_source = self.config.resultsTmpl.html();  // Get template
-            tmpl = Handlebars.compile(tmpl_source);  // Compile template
-
         // Render results
-        self.config.results.html( 
-            tmpl({
-                board: board,
-                stats: self.Stats.get()
-            })
-        );  
+        $.get("results.tmpl.html", function( template_source ) {
+                self.renderResults( template_source, { board: board, stats: self.Stats.get() } );
+        });
+    },
+
+    renderResults: function( template_source, variables ) {
+        self = TrelloStats;
+        var template = Handlebars.compile(template_source);
+        self.config.results.html( template(variables ));
     },
 
     Stats: {
         init: function( board ) {
             this.board = board;
             this.PomodoroAmount.init();
-            this.Weekdays.init();
+            this.WeekdaysAndHours.init();
         },
         update: function( card ) {
             this.PomodoroAmount.update( card );
-            this.Weekdays.update( card );
+            this.WeekdaysAndHours.update( card );
         },
 
         get: function() {
             return {
                 pomodoroAmount: this.PomodoroAmount.get(),
-                weekdays: this.Weekdays.get()
+                weekdays: this.WeekdaysAndHours.getWeekdays(),
+                hours: this.WeekdaysAndHours.getHours(),
+                daysHours: this.WeekdaysAndHours.getDaysHours()
             }
         },
         
@@ -283,23 +284,60 @@ var TrelloStats = {
 
         // Returns the amount of pomodoros per weekday
         // Output: [0, 1, 2, 0, 0, 0, 0] means one on tuesday and two on wednesday.
-        Weekdays: {
-            init: function() { this.weekdays = [0, 0, 0, 0, 0, 0, 0]; },
+        WeekdaysAndHours: {
+            init: function() { 
+                this.weekdays = {
+                    pomodoros: [0,0,0,0,0,0,0],
+                    names: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                };
+
+                this.hours = {
+                    pomodoros: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    names: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
+                };
+
+                this.week = [];
+                // Initalize
+                for (var dayNumber = 0; dayNumber < 7; dayNumber++) {
+                    this.week[dayNumber] = [];
+                    for (var hourNumber = 0; hourNumber < 24; hourNumber++) {
+                        this.week[dayNumber][hourNumber] = 0;
+                    }
+                }
+
+            },
             update: function( card ) {
-                for (var i = 0; i < card.pomodoros.length; i++) {
-                    // Get number of the comments weekday by Date()-ing the substring YYYY-MM-DD.
-                    var date = new Date(card.pomodoros[i].date.substr(0, 10)),
+                this.previousNumber = 0; 
+                for (var i = card.pomodoros.length - 1; i >= 0; i--) {
+                    // Get number of the comments weekday by Date()-ing the JSON date.
+                    var date = new Date(card.pomodoros[i].date),
                         // Get weekday as a number from 0 to 6.
-                        day = date.getDay() - 1;
+                        day = date.getDay() - 1,
+                        // Get hour as number from 0 to 23
+                        hour = date.getHours();
 
                     // getDay uses 0 for Sunday. I use Monday.
                     day = (day == -1) ? 6 : day;
+                    
+                    // Get amount of pomodoros done since the last pomodoro, including this one
+                    var pomodorosDone = card.pomodoros[i].pomodoroNumber - this.previousNumber;
 
-                    // Increase that weekdays pomodoro count by one
-                    this.weekdays[day]++;
+                    // Increase that weekdays pomodoro count
+                    this.weekdays.pomodoros[day] += pomodorosDone;
+
+                    // Increase that hours pomodoro count
+                    this.hours.pomodoros[hour] += pomodorosDone;
+
+                    // For the 2d array
+                    this.week[day][hour] += pomodorosDone;
+                    
+                    // Store for the next round
+                    this.previousNumber = card.pomodoros[i].pomodoroNumber;
                 }
             },
-            get: function() { return this.weekdays }
+            getWeekdays: function() { return JSON.stringify(this.weekdays) },
+            getHours: function() { return JSON.stringify(this.hours) },
+            getDaysHours: function() { return JSON.stringify(this.week) }
         }
     }
 
