@@ -73,22 +73,48 @@
             <script id="results-tmpl" type="text/x-handlebars-template">
                 <h2>Pomodoro report for <i>{{board.name}}</i></h2>
 
-                <!-- Label names -->
-                <table cellpadding="5">
+                <!-- Label names (TODO) -->
+                <table cellpadding="5" style="table" class="labels">
                     <tr>
-                        <td width="1%" style="background-color: red";>Red</td>
-                        <td width="1%" style="background-color: red";>Red</td>
-                        <td width="1%" style="background-color: red";>Red</td>
-                        <td width="1%" style="background-color: red";>Red</td>
-                        <td width="1%" style="background-color: red";>Red</td>
-                        <td width="1%" style="background-color: red";>Red</td>
+                        <td width="1%" style="background-color: #22c328;";></td>
+                        <td width="1%" style="background-color: #d7d742;";></td>
+                        <td width="1%" style="background-color: #dd9a3c;";></td>
+                        <td width="1%" style="background-color: #cc3333;";></td>
+                        <td width="1%" style="background-color: #8c28bd;";></td>
+                        <td width="1%" style="background-color: #3366cc;";></td>
+                    </tr>
                 </table>
 
-                <!-- Basic stats -->
                 {{#with stats}}
-                <table class="table table-bordered">
-                    <tr><td>Finished pomodoros</td><td>{{pomodoroAmount}}</td></tr>
+
+                <!-- Summary -->
+                <div class="well">
+                <p>You have completed a total of <b>{{pomodoroAmount}}</b> pomodoros on this board.</p>
+                </div>
+
+                <!-- Weekdays -->
+                <p>The most popular days were:</b>
+                <table class="table table-bordered stats-weekdays">
+                    <thead>
+                        <tr>
+                            <th>Monday</th>
+                            <th>Tuesday</th>
+                            <th>Wednesday</th>
+                            <th>Thursday</th>
+                            <th>Friday</th>
+                            <th>Saturday</th>
+                            <th>Sunday</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {{#each weekdays}}
+                                <td width="1%">{{this}}</td>
+                            {{/each}}
+                        </tr>
+                    </tbody>
                 </table>
+
                 {{/with}}
 
             </script>

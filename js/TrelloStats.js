@@ -163,7 +163,6 @@ var TrelloStats = {
             return function(e) {
                 // Reads the file data
                 var board = $.parseJSON( e.target.result );
-                console.log("Board: ", board); 
                 self.parseBoard( board );
                 // board.actions.0.data.text;
             };
@@ -184,32 +183,125 @@ var TrelloStats = {
         evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
     },
 
+    getCard: function( board, card_id ) {
+        for (var card in board.cards) {
+            if (card_id == card.id) {
+                return card;
+            }
+        }
+    },
+
     /*
      * Parse board object for data
      *
      */
     parseBoard: function( board ) {
-        var self = this,
-            stats = {};
+        var self = this;
+        
+        // Add pomodoro actions to their cards in the board variable
+        $.grep( board.actions, function( action ) {
+            // See if it is a pomodoro action
+            if (action.type == "commentCard"
+                && action.data.text.substr(0, 10) == "Pomodoro #") {
 
-        // Contains all actions that are comments starting with "Pomodoro #"
-        var pomodoros = $.grep( board.actions, function( action ) {
-            return action.type == "commentCard" && 
-                   action.data.text.substr(0, 10) == "Pomodoro #"
+                // Get the pomodoroNumber after #
+                var pomodoroNumber = parseInt(action.data.text.substr(10, 12));
+
+                // add pomodoronumber to action
+                action.pomodoroNumber = pomodoroNumber;
+
+                // Get its card
+                for (var i = 0; i < board.cards.length; i++) {
+                    // Add the action to that card
+                    if (board.cards[i].id == action.data.card.id) {
+                        // Check if pomodoros list exist
+                        if (board.cards[i].pomodoros == undefined) {
+                            // Create list if it doesn't.
+                            board.cards[i].pomodoros = []
+
+                            // Since the first action in this list is the last pomodoro
+                            // done, use this as the pomodoroAmount for this card
+                            board.cards[i].pomodoroAmount = pomodoroNumber;
+                        }
+                        // Append action to list
+                        board.cards[i].pomodoros.push( action );
+                        
+                        break;
+                    }
+                }
+           }
         });
 
-        // Get total amount of pomodoros
-        stats['pomodoroAmount'] = pomodoros.length;
+        self.Stats.init();
 
-        // Pass statistics to template, and render it
+        // Pass each pomodoro card to the Stats object.
+        for (var i = 0; i < board.cards.length; i++) {
+            if (board.cards[i].pomodoroAmount != undefined) {
+                self.Stats.update( board.cards[i] );
+            }
+        }
+
+        console.log("Parsed board: ", board);
+
+        // Get and compile template
         var tmpl_source = self.config.resultsTmpl.html();  // Get template
             tmpl = Handlebars.compile(tmpl_source);  // Compile template
-        self.config.results.html( tmpl({
-                stats: stats,
-                board: board
-            })
-        );  // Render template
 
+        // Render results
+        self.config.results.html( 
+            tmpl({
+                board: board,
+                stats: self.Stats.get()
+            })
+        );  
+    },
+
+    Stats: {
+        init: function( board ) {
+            this.board = board;
+            this.PomodoroAmount.init();
+            this.Weekdays.init();
+        },
+        update: function( card ) {
+            this.PomodoroAmount.update( card );
+            this.Weekdays.update( card );
+        },
+
+        get: function() {
+            return {
+                pomodoroAmount: this.PomodoroAmount.get(),
+                weekdays: this.Weekdays.get()
+            }
+        },
+        
+        // Get the total amount of pomodoros on this board
+        PomodoroAmount: {
+            init: function() { this.pomodoroAmount = 0; },
+            update: function( card ) { this.pomodoroAmount += card.pomodoroAmount; },
+            get: function() { return this.pomodoroAmount; }
+        },
+
+        // Returns the amount of pomodoros per weekday
+        // Output: [0, 1, 2, 0, 0, 0, 0] means one on tuesday and two on wednesday.
+        Weekdays: {
+            init: function() { this.weekdays = [0, 0, 0, 0, 0, 0, 0]; },
+            update: function( card ) {
+                for (var i = 0; i < card.pomodoros.length; i++) {
+                    // Get number of the comments weekday by Date()-ing the substring YYYY-MM-DD.
+                    var date = new Date(card.pomodoros[i].date.substr(0, 10)),
+                        // Get weekday as a number from 0 to 6.
+                        day = date.getDay() - 1;
+
+                    // getDay uses 0 for Sunday. I use Monday.
+                    day = (day == -1) ? 6 : day;
+
+                    // Increase that weekdays pomodoro count by one
+                    this.weekdays[day]++;
+                }
+            },
+            get: function() { return this.weekdays }
+        }
     }
+
 };
 
